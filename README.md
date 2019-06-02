@@ -1,3 +1,3 @@
 # whenisgoldenhour
 
-Live at http://whenisgoldenhour.com/
+Live at https://whenisgoldenhour.com/
