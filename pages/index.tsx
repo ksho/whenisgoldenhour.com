@@ -1,7 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import Geocode from 'react-geocode';
-import { checkServerIdentity } from 'tls';
 import _ from 'underscore';
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -10,21 +9,22 @@ const now = new Date();
 const day = days[ now.getDay() ];
 const month = months[ now.getMonth() ];
 
+// Securing the google maps api key
+// https://stackoverflow.com/questions/39625587/how-do-i-securely-use-google-api-keys/39625963
 const API_KEY = 'AIzaSyBga-_e2ycgyTSAJTegMmShBCbfqgwVwtk';
 
-let city;
 let hasDisplayedGoldenHour = false;
 const SunCalc = require('suncalc');
 
 export default class App extends React.Component {
 
-    constructor(props: any) {
+    constructor(props) {
         super(props);
         this.state = { data: undefined, city: undefined, start: undefined, end: undefined };
-      }
+    }
 
     componentDidMount() {
-        var component = this;
+        const component = this;
         fetch(`https://www.googleapis.com/geolocation/v1/geolocate?key=${API_KEY}`,
             {
             method: 'post',
@@ -33,7 +33,7 @@ export default class App extends React.Component {
             return response.json();
           })
           .then(function(json) {
-            var data = json;
+            const data = json;
             component.setState({ data: json });
 
             const location = data.location;
@@ -44,17 +44,14 @@ export default class App extends React.Component {
                 .then(
                     response => {
                         const address = response.results[0].formatted_address;
-                        var firstResult = response.results[0]
+                        const firstResult = response.results[0]
 
                         if (firstResult) {
                             const locality = _(firstResult.address_components).find((v) => {
                                 return _(v.types).contains('locality');
                             });
                         
-
-                            // var locationEl = document.getElementById("location");
-                            // locationEl.innerHTML = '..in ' + city.long_name;
-                            city = locality.long_name;
+                            const city = locality.long_name;
                             component.setState({ city: locality.long_name });
                         } else {
                             alert("No results found");
@@ -67,7 +64,7 @@ export default class App extends React.Component {
             });
     }
 
-    public getGoldenHour(location: any) {
+    getGoldenHour(location) {
         const lat = location.lat;
         const lng = location.lng;
 
@@ -103,14 +100,6 @@ export default class App extends React.Component {
         }
     }
 
-    public getAddress(location) {
-
-        const component = this;
-
-        
-
-    }
-
     render() {
         var { data, city, start, end } = this.state;
 
@@ -124,6 +113,7 @@ export default class App extends React.Component {
                 <Question>
                     when is golden hour today?
                 </Question>
+                <br></br>
         
                 { data && data.location &&
                     <Location>
