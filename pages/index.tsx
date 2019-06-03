@@ -9,6 +9,8 @@ const now = new Date();
 const day = days[ now.getDay() ];
 const month = months[ now.getMonth() ];
 
+// Key restricted to requests from this domain at https://console.cloud.google.com/apis/credentials?authuser=1&project=whenisgoldenhour
+//
 // Securing the google maps api key
 // https://stackoverflow.com/questions/39625587/how-do-i-securely-use-google-api-keys/39625963
 const API_KEY = 'AIzaSyBga-_e2ycgyTSAJTegMmShBCbfqgwVwtk';
