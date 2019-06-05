@@ -1,19 +1,17 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import Geocode from 'react-geocode';
 import _ from 'underscore';
-
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const now = new Date();
-const day = days[ now.getDay() ];
-const month = months[ now.getMonth() ];
 
 // Key restricted to requests from this domain at https://console.cloud.google.com/apis/credentials?authuser=1&project=whenisgoldenhour
 //
 // Securing the google maps api key
 // https://stackoverflow.com/questions/39625587/how-do-i-securely-use-google-api-keys/39625963
 const API_KEY = 'AIzaSyBga-_e2ycgyTSAJTegMmShBCbfqgwVwtk';
+
+const GEOLOCATE_SRC = `https://www.googleapis.com/geolocation/v1/geolocate?key=${API_KEY}`;
+const GEOCODE_SRC = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`;
+
+const FONT_SRC = 'https://fonts.googleapis.com/css?family=Anton|Fjalla+One|Josefin+Sans|Lobster|Raleway';
 
 let hasDisplayedGoldenHour = false;
 const SunCalc = require('suncalc');
@@ -27,43 +25,38 @@ export default class App extends React.Component {
 
     componentDidMount() {
         const component = this;
-        fetch(`https://www.googleapis.com/geolocation/v1/geolocate?key=${API_KEY}`,
-            {
+        fetch(GEOLOCATE_SRC, {
             method: 'post',
-          })
-          .then(function(response) {
+        })
+        .then((response) => {
             return response.json();
-          })
-          .then(function(json) {
+        })
+        .then((json) => {
             const data = json;
             component.setState({ data: json });
 
             const location = data.location;
-            // this.geoSuccess({ coords: { latitude: success.location.lat, longitude: success.location.lng } });
-
-            Geocode.setApiKey(API_KEY);
-            Geocode.fromLatLng(location.lat.toString(), location.lng.toString())
-                .then(
-                    response => {
-                        const address = response.results[0].formatted_address;
-                        const firstResult = response.results[0]
-
-                        if (firstResult) {
-                            const locality = _(firstResult.address_components).find((v) => {
+            const geocoder = new google.maps.Geocoder;
+            if (location) {
+                const loc = {
+                    location: { lat: location.lat, lng: location.lng },
+                };
+    
+                geocoder.geocode(loc, (results, status) => {
+                    if (status === 'OK') {
+                        const r = results[0];
+                        if (r) {
+                            const locality = _(r.address_components).find((v) => {
                                 return _(v.types).contains('locality');
                             });
-                        
-                            const city = locality.long_name;
                             component.setState({ city: locality.long_name });
-                        } else {
-                            alert("No results found");
                         }
-                    },
-                    error => {
-                        console.error(error);
+                    } else {
+                        console.error(status);
                     }
-                );
-            });
+                });
+            }
+        });
     }
 
     getGoldenHour(location) {
@@ -111,7 +104,8 @@ export default class App extends React.Component {
         
         return (
             <div>
-                <link href="https://fonts.googleapis.com/css?family=Anton|Fjalla+One|Josefin+Sans|Lobster|Raleway" rel="stylesheet"/>
+                <script async src={ GEOCODE_SRC }></script>
+                <link href={ FONT_SRC } rel="stylesheet"/>
                 <Question>
                     when is golden hour today?
                 </Question>
