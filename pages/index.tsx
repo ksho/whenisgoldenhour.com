@@ -16,9 +16,9 @@ const FONT_SRC = 'https://fonts.googleapis.com/css?family=Anton|Fjalla+One|Josef
 let hasDisplayedGoldenHour = false;
 const SunCalc = require('suncalc');
 
-export default class App extends React.Component {
+export default class App extends React.Component<any, any> {
 
-    constructor(props) {
+    constructor(props: any) {
         super(props);
         this.state = { data: undefined, city: undefined, start: undefined, end: undefined };
     }
@@ -42,11 +42,11 @@ export default class App extends React.Component {
                     location: { lat: location.lat, lng: location.lng },
                 };
     
-                geocoder.geocode(loc, (results, status) => {
+                geocoder.geocode(loc, (results: any, status: any) => {
                     if (status === 'OK') {
                         const r = results[0];
                         if (r) {
-                            const locality = _(r.address_components).find((v) => {
+                            const locality = _(r.address_components).find((v: any) => {
                                 return _(v.types).contains('locality');
                             });
                             component.setState({ city: locality.long_name });
@@ -59,7 +59,7 @@ export default class App extends React.Component {
         });
     }
 
-    getGoldenHour(location) {
+    getGoldenHour(location: any) {
         const lat = location.lat;
         const lng = location.lng;
 

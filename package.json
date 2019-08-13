@@ -6,7 +6,9 @@
     "export": "next build && next export"
   },
   "devDependencies": {
-    "babel-plugin-styled-components": "^1.10.0"
+    "@types/googlemaps": "^3.37.3",
+    "babel-plugin-styled-components": "^1.10.0",
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "@types/next": "^7.0.8",
@@ -15,9 +17,8 @@
     "@types/styled-components": "^4.1.6",
     "@types/underscore": "^1.8.14",
     "@zeit/next-source-maps": "0.0.3",
-    "@zeit/next-typescript": "^1.1.1",
     "classnames": "^2.2.6",
-    "next": "^8.0.3",
+    "next": "^9.0.3",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "styled-components": "^4.1.3",
