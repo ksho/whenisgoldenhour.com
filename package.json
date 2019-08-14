@@ -5,7 +5,8 @@
     "start": "next start",
     "export": "next build && next export",
     "deploy": "aws s3 sync out/ s3://whenisgoldenhour.com --acl public-read --profile default",
-    "invalidate": "aws cloudfront create-invalidation --distribution-id E3GL7MVDQ00TG6 --paths '/*' --profile default"
+    "invalidate": "aws cloudfront create-invalidation --distribution-id E3GL7MVDQ00TG6 --paths '/*' --profile default",
+    "shipit": "npm run deploy && npm run invalidate"
   },
   "devDependencies": {
     "@types/googlemaps": "^3.37.3",
