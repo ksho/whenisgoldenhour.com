@@ -3,7 +3,9 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "export": "next build && next export"
+    "export": "next build && next export",
+    "deploy": "aws s3 sync out/ s3://whenisgoldenhour.com --acl public-read --profile default",
+    "invalidate": "aws cloudfront create-invalidation --distribution-id E3GL7MVDQ00TG6 --paths '/*' --profile default"
   },
   "devDependencies": {
     "@types/googlemaps": "^3.37.3",
