@@ -2,6 +2,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 import _ from 'underscore';
 
+import Head from 'pages/head';
+
 // Key restricted to requests from this domain at https://console.cloud.google.com/apis/credentials?authuser=1&project=whenisgoldenhour
 //
 // Securing the google maps api key
@@ -104,6 +106,7 @@ export default class App extends React.Component<any, any> {
         
         return (
             <div>
+                <Head/>
                 <script async src={ GEOCODE_SRC }></script>
                 <link href={ FONT_SRC } rel="stylesheet"/>
                 <Question>
