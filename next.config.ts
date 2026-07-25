@@ -1,12 +1,16 @@
 import type { NextConfig } from 'next';
 
-// next loads .env.local automatically now, and inlines anything prefixed with
-// NEXT_PUBLIC_ into the browser bundle. The key is public either way once this
-// is exported -- what protects it is the HTTP referrer restriction on the
-// domain. Keeping it in .env.local just keeps it out of this public repo.
+// next inlines anything prefixed with NEXT_PUBLIC_ into the browser bundle, so
+// the key ends up public in the export no matter what -- the HTTP referrer
+// restriction on the domain is what actually protects it.
+//
+// Which file wins depends on NODE_ENV. `next build` reads .env.production (the
+// domain-restricted key); `next dev` reads .env.development.local (the
+// local-only key, gitignored). Note .env.local would outrank BOTH, which is why
+// the local key doesn't live there -- it would leak into production builds.
 if (!process.env.NEXT_PUBLIC_GCP_MAPS_API) {
     throw new Error(
-        'NEXT_PUBLIC_GCP_MAPS_API is missing -- set it in .env.local or in the Vercel project environment, or the build ships key=undefined'
+        'NEXT_PUBLIC_GCP_MAPS_API is missing -- expected it in .env.production (builds) or .env.development.local (dev), or the build ships key=undefined'
     );
 }
 
