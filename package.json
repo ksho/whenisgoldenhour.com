@@ -1,31 +1,36 @@
 {
+  "name": "whenisgoldenhour",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
-    "dev": "next",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "export": "next build && next export",
+    "preview": "npx --yes serve out",
+    "typecheck": "tsc --noEmit",
     "deploy": "aws s3 sync out/ s3://whenisgoldenhour.com --acl public-read --profile default",
     "invalidate": "aws cloudfront create-invalidation --distribution-id E3GL7MVDQ00TG6 --paths '/*' --profile default",
     "shipit": "npm run deploy && npm run invalidate"
   },
-  "devDependencies": {
-    "@types/googlemaps": "^3.37.3",
-    "babel-plugin-styled-components": "^1.10.0",
-    "typescript": "^3.5.3"
+  "comment": "overrides bump next's own pinned transitives past known advisories (postcss GHSA-qx2v-qp2m-jg93 et al, sharp/libvips CVE-2026-33327 et al). Both are build-time only here. Drop these once next ships the bumps itself.",
+  "overrides": {
+    "postcss": "^8.5.23",
+    "sharp": "^0.35.3"
   },
   "dependencies": {
-    "@types/next": "^7.0.8",
-    "@types/react": "^16.8.1",
-    "@types/react-dom": "^16.0.11",
-    "@types/styled-components": "^4.1.6",
-    "@types/underscore": "^1.8.14",
-    "@zeit/next-source-maps": "0.0.3",
-    "classnames": "^2.2.6",
-    "next": "^9.0.3",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4",
-    "styled-components": "^4.1.3",
-    "suncalc": "^1.8.0",
-    "underscore": "^1.9.1"
+    "next": "^16.2.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "styled-components": "^6.4.4",
+    "suncalc": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/google.maps": "^3.65.3",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
   }
 }
