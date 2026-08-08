@@ -20,7 +20,13 @@ type State = {
     location?: Location;
     city?: string;
     cityResolved: boolean;
+    // The loading state outlives `cityResolved` by one fade so it can leave
+    // gracefully instead of being cut away.
+    loadingMounted: boolean;
 };
+
+// Keep in step with the durations on Loading/Content below.
+const FADE_OUT_MS = 320;
 
 // The maps script loads async, so google may not exist yet when geolocation
 // comes back -- on a cold load it usually doesn't.
@@ -67,7 +73,14 @@ function getGoldenHour({ lat, lng }: Location) {
 
 export default class App extends React.Component<Record<string, never>, State> {
 
-    state: State = { location: undefined, city: undefined, cityResolved: false };
+    state: State = {
+        location: undefined,
+        city: undefined,
+        cityResolved: false,
+        loadingMounted: true,
+    };
+
+    fadeOutTimer?: ReturnType<typeof setTimeout>;
 
     async componentDidMount() {
         try {
@@ -87,6 +100,21 @@ export default class App extends React.Component<Record<string, never>, State> {
             console.error(error);
             this.setState({ cityResolved: true });
         }
+    }
+
+    // Let the sun finish fading before the answer takes its place, so the
+    // handover reads as a dissolve rather than a jump.
+    componentDidUpdate(_prevProps: Record<string, never>, prevState: State) {
+        if (!prevState.cityResolved && this.state.cityResolved) {
+            this.fadeOutTimer = setTimeout(
+                () => this.setState({ loadingMounted: false }),
+                FADE_OUT_MS
+            );
+        }
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.fadeOutTimer);
     }
 
     async resolveCity(location: Location) {
@@ -112,9 +140,9 @@ export default class App extends React.Component<Record<string, never>, State> {
         }
     }
 
-    renderLoading() {
+    renderLoading(leaving: boolean) {
         return (
-            <Loading>
+            <Loading $leaving={ leaving }>
                 <Sky>
                     <Sun/>
                     <Sparkles>
@@ -131,7 +159,7 @@ export default class App extends React.Component<Record<string, never>, State> {
     }
 
     render() {
-        const { location, city, cityResolved } = this.state;
+        const { location, city, cityResolved, loadingMounted } = this.state;
 
         const times = location && getGoldenHour(location);
 
@@ -149,8 +177,8 @@ export default class App extends React.Component<Record<string, never>, State> {
                 </Question>
                 <br></br>
 
-                { isLoading ? this.renderLoading() :
-                    <React.Fragment>
+                { loadingMounted ? this.renderLoading(!isLoading) :
+                    <Content>
                         { city &&
                             <Location>
                                 ..in { city }
@@ -171,7 +199,7 @@ export default class App extends React.Component<Record<string, never>, State> {
                                 </Message>
                             </Time>
                         }
-                    </React.Fragment>
+                    </Content>
                 }
 
                 <Credits>
@@ -204,6 +232,25 @@ const Location = styled.div`
     font-family: "Fjalla One";
     font-weight: 300;
     margin-top: 20px; 
+`;
+
+// The answer arrives on its own gentle rise once the sun has faded out.
+const rise = keyframes`
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+`;
+
+const fade = keyframes`
+    from { opacity: 0; }
+    to   { opacity: 1; }
+`;
+
+const Content = styled.div`
+    animation: ${rise} 420ms ease-out both;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation-name: ${fade};
+    }
 `;
 
 const Time = styled.div`
@@ -264,12 +311,20 @@ const breathe = keyframes`
     50%      { opacity: 1; }
 `;
 
-const Loading = styled.div`
+// Once the city resolves the whole scene dims and settles for a beat, so the
+// answer replaces a sunset that has already gone rather than one cut short.
+const Loading = styled.div<{ $leaving: boolean }>`
     text-align: center;
     margin-top: 20px;
+    opacity: ${({ $leaving }) => ($leaving ? 0 : 1)};
+    transform: ${({ $leaving }) => ($leaving ? 'translateY(6px) scale(0.98)' : 'none')};
+    transition: opacity ${FADE_OUT_MS}ms ease-out, transform ${FADE_OUT_MS}ms ease-out;
 
     /* Keep the warmth, drop the movement. */
     @media (prefers-reduced-motion: reduce) {
+        transform: none;
+        transition: opacity ${FADE_OUT_MS}ms ease-out;
+
         & > * , & > * > * , & > * > * > * {
             animation: ${breathe} 3s ease-in-out infinite !important;
             transform: none;
